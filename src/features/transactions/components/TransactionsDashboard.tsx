@@ -6,13 +6,12 @@ import { TransactionFilterBar } from "./TransactionFilterBar"
 import { TransactionsTable } from "./TransactionsTable"
 import { TransactionDetailSheet } from "./TransactionDetailSheet"
 import { useTransactions } from "../api/queries"
-import type { TransactionFilter } from "../schemas"
+import { useTransactionUrlState } from "../hooks/useTransactionUrlState"
 
 const BUSINESS_ID = "biz-1"
 
 export function TransactionsDashboard() {
-  const [filters, setFilters] = useState<TransactionFilter>({})
-  const [page, setPage] = useState(1)
+  const { filters, page, setFilters, setPage, setSearchQuery } = useTransactionUrlState()
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null)
 
   const { data, isPending, isFetching } = useTransactions(BUSINESS_ID, filters, page)
@@ -33,7 +32,7 @@ export function TransactionsDashboard() {
       <TransactionFilterBar
         filters={filters}
         onFiltersChange={setFilters}
-        onPageReset={() => setPage(1)}
+        onSearchQueryChange={setSearchQuery}
       />
 
       <TransactionsTable
