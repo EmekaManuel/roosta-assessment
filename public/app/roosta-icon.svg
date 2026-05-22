@@ -1,0 +1,51 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 48 48"
+  fill="none"
+  role="img"
+  aria-label="Roosta"
+>
+  <!--
+    Roosta · Icon Mark
+    ──────────────────
+    Concept: Three ascending bars — a visual shorthand for
+    Roosta's three core modules: Bookings · Attendance · Payroll.
+    Reads equally as a bar chart (growth), a schedule grid,
+    or a dashboard at a glance. Intentionally simple — works
+    at 16 × 16 favicon and billboard scale.
+
+    Palette: #F9F1DE cream on transparent (dark-bg optimised).
+    For light backgrounds, swap fill to #030303.
+  -->
+
+  <!-- Bar 1 · Bookings · shortest (left) -->
+  <rect
+    x="4"
+    y="22"
+    width="11"
+    height="20"
+    rx="3"
+    fill="#F9F1DE"
+  />
+
+  <!-- Bar 2 · Attendance · mid-height (centre) -->
+  <rect
+    x="18.5"
+    y="13"
+    width="11"
+    height="29"
+    rx="3"
+    fill="#F9F1DE"
+  />
+
+  <!-- Bar 3 · Payroll · tallest (right) -->
+  <rect
+    x="33"
+    y="5"
+    width="11"
+    height="37"
+    rx="3"
+    fill="#F9F1DE"
+  />
+
+</svg>

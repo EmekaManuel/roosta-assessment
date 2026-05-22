@@ -1,0 +1,349 @@
+# Roosta — Cursor Rules
+# Stack: Next.js 14 (App Router) · React · TypeScript · Shadcn/UI · Zod · TanStack React Query
+
+---
+
+## Project Overview
+Roosta is a SaaS platform for micro service businesses in Nigeria to manage appointments (customer bookings) and staff (attendance + payroll) in one place.
+
+---
+
+## Tech Stack
+- **Framework:** Next.js 14 with App Router
+- **Language:** TypeScript (strict mode — no `any`, ever)
+- **Styling:** Tailwind CSS + Shadcn/UI
+- **Forms:** React Hook Form + Zod resolvers
+- **Data Fetching:** TanStack React Query v5
+- **HTTP Client:** Axios via shared api-client
+- **Auth:** NextAuth.js
+- **Notifications:** Sonner toast
+- **Date handling:** date-fns
+
+---
+
+## Folder Structure Rules
+
+```
+src/
+├── app/
+│   ├── (site)/         # Landing page routes — static/marketing only
+│   ├── (booking)/      # Public customer-facing booking — no auth
+│   ├── (dashboard)/    # Owner dashboard — always auth-guarded
+│   ├── layout.tsx      # Root layout with providers
+│   └── globals.css
+│
+├── features/           # All business logic, feature by feature
+│   ├── auth/
+│   ├── bookings/
+│   ├── staff/
+│   ├── attendance/
+│   ├── payroll/
+│   └── business/
+│
+└── shared/             # Truly reusable, cross-feature code only
+    ├── components/
+    │   ├── ui/         # Shadcn auto-generated — NEVER edit directly
+    │   ├── layout/
+    │   ├── feedback/
+    │   └── data/
+    ├── hooks/
+    ├── lib/
+    ├── schemas/
+    └── types/
+```
+
+---
+
+## Architecture Rules
+
+### Pages
+- Pages are DUMB. Zero business logic in page files.
+- Pages only import feature components and compose layouts.
+- Data fetching happens inside feature hooks, never in pages.
+
+```tsx
+// ✅ Correct page
+export default function AttendancePage() {
+  return (
+    <PageHeader title="Attendance" />
+    <AttendanceTable />
+  )
+}
+
+// ❌ Wrong — fetching in page
+export default function AttendancePage() {
+  const { data } = useQuery({ queryKey: ["attendance"], queryFn: fetchAttendance })
+  ...
+}
+```
+
+### Features
+- Every feature owns: `api/queries.ts`, `api/mutations.ts`, `components/`, `schemas/index.ts`, `types/index.ts`, `index.ts`
+- Features NEVER import from other features directly. Share via `shared/` only.
+- Every feature exports through its barrel `index.ts`.
+
+```ts
+// ✅ Correct import
+import { useBookings, BookingCalendar } from "@/features/bookings"
+
+// ❌ Wrong — reaching inside a feature
+import { useBookings } from "@/features/bookings/api/queries"
+```
+
+### Shared
+- `shared/components/ui/` is owned by Shadcn CLI — never edit these files manually.
+- Build custom components on top of Shadcn in `shared/components/layout/`, `feedback/`, `data/`.
+- `shared/lib/constants.ts` is the single source of truth for all React Query keys.
+
+---
+
+## TypeScript Rules
+
+- Strict mode always. Zero `any` types — use `unknown` if needed.
+- Never write TypeScript types manually for form data or API shapes. Always infer from Zod schemas.
+
+```ts
+// ✅ Correct — infer type from schema
+const bookingSchema = z.object({ ... })
+type BookingFormData = z.infer<typeof bookingSchema>
+
+// ❌ Wrong — manually written type that duplicates schema
+type BookingFormData = {
+  serviceId: string
+  date: string
+}
+```
+
+- Use `interface` for object shapes that may be extended, `type` for unions and inferred types.
+- All API response shapes use the shared generic: `ApiResponse<T>` and `PaginatedResponse<T>`.
+
+---
+
+## Zod Rules
+
+- Every form has a Zod schema in `features/<name>/schemas/index.ts`.
+- Nigerian phone numbers use this regex: `/^(\+234|0)[789]\d{9}$/`
+- Shared schemas (pagination, phone, address) live in `shared/schemas/`.
+- Schema names use the pattern `<noun>Schema` e.g. `bookingSchema`, `staffSchema`.
+
+```ts
+// features/staff/schemas/index.ts
+import { z } from "zod"
+
+export const staffSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  phone: z.string().regex(/^(\+234|0)[789]\d{9}$/, "Enter a valid Nigerian number"),
+  role: z.string().min(1, "Select a role"),
+  payType: z.enum(["fixed", "daily", "commission"]),
+  payRate: z.number().positive("Enter a valid pay rate"),
+})
+
+export type StaffFormData = z.infer<typeof staffSchema>
+```
+
+---
+
+## React Query Rules
+
+- All query hooks live in `features/<name>/api/queries.ts`.
+- All mutation hooks live in `features/<name>/api/mutations.ts`.
+- Query keys ALWAYS come from `QUERY_KEYS` in `shared/lib/constants.ts` — never hardcode strings.
+- Always invalidate relevant queries after a successful mutation.
+- Set `staleTime: 1000 * 60 * 2` (2 minutes) as default for most queries.
+
+```ts
+// ✅ Correct query hook
+export function useStaffMembers(businessId: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.STAFF, businessId],
+    queryFn: () => apiClient.get<StaffMember[]>(`/staff?businessId=${businessId}`),
+    staleTime: 1000 * 60 * 2,
+  })
+}
+
+// ✅ Correct mutation hook
+export function useCreateStaff() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: StaffFormData) => apiClient.post("/staff", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.STAFF] })
+      toast.success("Staff member added!")
+    },
+    onError: () => {
+      toast.error("Something went wrong. Try again.")
+    }
+  })
+}
+```
+
+---
+
+## Form Rules
+
+- All forms use React Hook Form with `zodResolver`.
+- All form fields use Shadcn `<Form>`, `<FormField>`, `<FormItem>`, `<FormLabel>`, `<FormControl>`, `<FormMessage>` — never raw inputs with manual error display.
+- Submit buttons show loading state using `isPending` from the mutation.
+- Never disable the entire form during submission — only disable the submit button.
+
+```tsx
+// ✅ Correct form pattern
+export function StaffForm() {
+  const form = useForm<StaffFormData>({
+    resolver: zodResolver(staffSchema),
+    defaultValues: { name: "", phone: "", payType: "fixed", payRate: 0 },
+  })
+
+  const { mutate: createStaff, isPending } = useCreateStaff()
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit((data) => createStaff(data))}>
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Amaka Obi" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Saving..." : "Add Staff"}
+        </Button>
+      </form>
+    </Form>
+  )
+}
+```
+
+---
+
+## Component Rules
+
+- Use `"use client"` only when truly needed (event handlers, hooks, browser APIs).
+- Prefer Server Components by default for anything in `app/` that doesn't need interactivity.
+- Never use `React.FC` — use plain function declarations with explicit prop types.
+- Props interfaces are named `<ComponentName>Props`.
+
+```tsx
+// ✅ Correct component
+interface StaffCardProps {
+  staff: StaffMember
+  onEdit: (id: string) => void
+}
+
+export function StaffCard({ staff, onEdit }: StaffCardProps) {
+  return (...)
+}
+
+// ❌ Wrong
+const StaffCard: React.FC<{ staff: any }> = ({ staff }) => (...)
+```
+
+- Keep components small and focused. If a component exceeds ~150 lines, split it.
+- Co-locate sub-components in the same file if they're only used once, extract if reused.
+
+---
+
+## Styling Rules
+
+- Use Tailwind utility classes only — no inline styles, no CSS modules.
+- Use the `cn()` utility from `shared/lib/utils.ts` for conditional class merging.
+- Roosta brand colors:
+  - Primary green: `#1A6B45` → use `bg-primary`, `text-primary` via CSS variable
+  - Accent orange: `#F97316` → `text-orange-500`, `bg-orange-500`
+  - Use Tailwind `slate` for all neutral/gray tones
+- Dark mode is supported via Shadcn's CSS variables — never hardcode light-only colors.
+- Responsive design is mobile-first. Dashboard is usable on phones (owners check it on the go).
+
+---
+
+## API Client Rules
+
+- All HTTP calls go through `shared/lib/api-client.ts` — never use raw `fetch` or standalone axios instances.
+- Never put API calls directly in components — always in feature `api/` files.
+- The API client auto-attaches the auth token and handles 401 redirects globally.
+
+---
+
+## Error Handling Rules
+
+- Use `toast.error()` from Sonner in mutation `onError` callbacks.
+- Use `<EmptyState />` from `shared/components/feedback/` when a list has no data.
+- Use `<LoadingSpinner />` or Shadcn `<Skeleton />` for loading states — never show blank screens.
+- Never swallow errors silently. Always log or surface them.
+
+---
+
+## File Naming Conventions
+
+| Type | Convention | Example |
+|---|---|---|
+| Components | PascalCase | `StaffCard.tsx` |
+| Hooks | camelCase with `use` prefix | `useAttendance.ts` |
+| Schemas | camelCase | `staffSchema` |
+| Types | PascalCase | `StaffMember` |
+| Utilities | camelCase | `formatCurrency.ts` |
+| API files | lowercase | `queries.ts`, `mutations.ts` |
+| Pages | lowercase Next.js convention | `page.tsx`, `layout.tsx` |
+
+---
+
+## Import Order (enforced mentally, add ESLint rule if desired)
+1. React / Next.js
+2. Third-party libraries
+3. `@/shared/` imports
+4. `@/features/` imports
+5. Relative imports (`./`, `../`)
+6. Types (always last, use `import type`)
+
+```ts
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
+import { Button } from "@/shared/components/ui/button"
+import { useStaffMembers } from "@/features/staff"
+import { StaffCard } from "./StaffCard"
+import type { StaffMember } from "@/features/staff"
+```
+
+---
+
+## Nigerian Market Specifics
+- Phone numbers: always validate with `/^(\+234|0)[789]\d{9}$/`
+- Currency: always format as NGN using `formatCurrency()` from `shared/lib/formatters.ts`
+- Paystack is the payment processor — use `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` env var
+- WhatsApp integration is a first-class feature — payslips and reminders are sent via WhatsApp
+- Date format for display: `dd MMM yyyy` (e.g. "26 Feb 2026") — Nigerian users are familiar with this
+
+---
+
+## Environment Variables
+```
+NEXT_PUBLIC_API_URL          # Backend Express API base URL
+NEXT_PUBLIC_APP_URL          # Frontend app URL
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY  # Paystack public key
+NEXTAUTH_SECRET              # NextAuth secret
+NEXTAUTH_URL                 # NextAuth callback URL
+```
+
+Never access `process.env` directly in components. Create typed wrappers in `shared/lib/constants.ts`.
+
+---
+
+## What NOT To Do
+- ❌ Never use `any` type
+- ❌ Never fetch data inside page files
+- ❌ Never import from inside a feature (always use barrel export)
+- ❌ Never edit files in `shared/components/ui/` — they belong to Shadcn
+- ❌ Never hardcode query key strings — use `QUERY_KEYS` constant
+- ❌ Never write TypeScript types for data that has a Zod schema
+- ❌ Never use raw `fetch` — always use `apiClient`
+- ❌ Never add business logic to shared components
+- ❌ Never store sensitive data in localStorage — use httpOnly cookies via NextAuth
+- ❌ Never skip loading and empty states

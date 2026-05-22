@@ -1,0 +1,48 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 196 48"
+  fill="none"
+  role="img"
+  aria-label="Roosta"
+>
+  <!--
+    Roosta · Full Wordmark
+    ──────────────────────
+    Layout: 48 × 48 icon mark  +  12px gap  +  136px wordmark
+    Total viewBox: 196 × 48
+
+    Icon concept: Three ascending bars (Bookings · Attendance · Payroll)
+    Wordmark: "Roosta" in a clean geometric sans — weight 300-400,
+    slightly tight tracking, aligns optically with icon mid-height.
+
+    Colour: #F9F1DE (cream) — designed for dark backgrounds.
+  -->
+
+  <!-- ─────────────────────────────────
+       ICON MARK  (0 0 48 48 region)
+       ───────────────────────────────── -->
+
+  <!-- Bar 1 · Bookings · shortest -->
+  <rect x="4"    y="22" width="11" height="20" rx="3" fill="#F9F1DE" />
+
+  <!-- Bar 2 · Attendance · mid -->
+  <rect x="18.5" y="13" width="11" height="29" rx="3" fill="#F9F1DE" />
+
+  <!-- Bar 3 · Payroll · tallest -->
+  <rect x="33"   y="5"  width="11" height="37" rx="3" fill="#F9F1DE" />
+
+
+  <!-- ─────────────────────────────────
+       WORDMARK  (starts at x = 60)
+       ───────────────────────────────── -->
+  <text
+    x="60"
+    y="33"
+    font-family="'IBM Plex Sans', 'Inter', 'Helvetica Neue', Arial, sans-serif"
+    font-size="26"
+    font-weight="300"
+    letter-spacing="-0.5"
+    fill="#F9F1DE"
+  >Roosta</text>
+
+</svg>
