@@ -6,7 +6,7 @@ import type {
   TransactionTimelineEvent,
 } from "../types"
 
-export const MOCK_TRANSACTIONS: Transaction[] = [
+const INITIAL_MOCK_TRANSACTIONS: Transaction[] = [
   {
     id: "txn-1",
     reference: "TXN-8F2A91",
@@ -174,6 +174,20 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
   },
 ]
 
+/** Mutable in-memory store for live polling simulation. */
+let mockTransactionsStore: Transaction[] = [...INITIAL_MOCK_TRANSACTIONS]
+
+export function getMutableTransactions(): Transaction[] {
+  return mockTransactionsStore
+}
+
+export function resetMockTransactions(): void {
+  mockTransactionsStore = [...INITIAL_MOCK_TRANSACTIONS]
+}
+
+/** @deprecated Use getMutableTransactions — kept for static imports */
+export const MOCK_TRANSACTIONS = INITIAL_MOCK_TRANSACTIONS
+
 const CUSTOMER_PROFILES: Record<string, TransactionCustomer> = {
   "cust-101": {
     id: "cust-101",
@@ -316,10 +330,10 @@ function buildTimeline(txn: Transaction): TransactionTimelineEvent[] {
 }
 
 export function getTransactionDetail(id: string): TransactionDetail | null {
-  const txn = MOCK_TRANSACTIONS.find((t) => t.id === id)
+  const txn = mockTransactionsStore.find((t) => t.id === id)
   if (!txn) return null
 
-  const history = MOCK_TRANSACTIONS.filter(
+  const history = mockTransactionsStore.filter(
     (t) => t.customerId === txn.customerId && t.id !== txn.id
   ).slice(0, 5)
 

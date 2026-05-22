@@ -11,22 +11,19 @@ const maybeRoot = path.resolve(cwd, '..', '..');
   path.join(cwd, '.env.local'),
 ].forEach((envPath) => dotenv.config({ path: envPath }));
 
-const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   reactCompiler: true,
   reactStrictMode: true,
 
-  // Redirect old /bookings (owner dashboard) to /dashboard/bookings so it doesn't collide with public /book/*
-  async redirects() {
-    return [
-      { source: '/bookings', destination: '/dashboard/transactions', permanent: true },
-      { source: '/dashboard/bookings', destination: '/dashboard/transactions', permanent: true },
-    ];
-  },
 
-  // Serve V2 at /v2 path in production (sque.ai/v2/*). In dev, no basePath so localhost/ works.
-  ...(isDev ? {} : { basePath: '/v2' }),
+
+  // Optional subpath deploy (e.g. sque.ai/v2). Set NEXT_PUBLIC_BASE_PATH=/v2 there.
+  // Unset = site root (Netlify, Vercel, local prod builds).
+  ...(process.env.NEXT_PUBLIC_BASE_PATH?.trim()
+    ? { basePath: process.env.NEXT_PUBLIC_BASE_PATH.trim().replace(/\/$/, '') }
+    : {}),
 
   // Allowed remote image routes 
   images: {
