@@ -40,8 +40,8 @@ export function GuestGuard({ children }: GuestGuardProps) {
 
   if (!isHydrated || (token && (isLoading || user))) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground">Loading…</div>
+      <div className="flex min-h-screen items-center justify-center bg-v3-primary">
+        <div className="text-v3-secondary/60 font-ibm-plex-sans text-sm">Loading…</div>
       </div>
     )
   }
