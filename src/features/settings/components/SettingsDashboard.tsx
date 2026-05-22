@@ -10,21 +10,21 @@ import {
 import { PageHeader } from "@/shared/components/layout/PageHeader"
 import { LoadingSpinner } from "@/shared/components/feedback/LoadingSpinner"
 import { Building2, Clock, Bell } from "lucide-react"
+import { useActiveBusiness } from "@/shared/hooks/useActiveBusiness"
 import { useSettings } from "../api/queries"
 import { useUpdateBusinessProfile, useUpdateAttendanceSettings, useUpdateNotificationSettings } from "../api/mutations"
 import { BusinessProfileSection } from "./BusinessProfileSection"
 import { AttendanceSettingsSection } from "./AttendanceSettingsSection"
 import { NotificationsSection } from "./NotificationsSection"
 
-const BUSINESS_ID = "biz-1" // TODO: replace from auth session
-
 export function SettingsDashboard() {
-    const { data: settings, isLoading } = useSettings(BUSINESS_ID)
+    const { businessId, isHydrated } = useActiveBusiness()
+    const { data: settings, isLoading } = useSettings(businessId)
     const { mutate: updateBusiness, isPending: businessPending } = useUpdateBusinessProfile()
     const { mutate: updateAttendance, isPending: attendancePending } = useUpdateAttendanceSettings()
     const { mutate: updateNotifications, isPending: notificationsPending } = useUpdateNotificationSettings()
 
-    if (isLoading || !settings) {
+    if (!isHydrated || !businessId || isLoading || !settings) {
         return (
             <div className="flex items-center justify-center min-h-[200px]">
                 <LoadingSpinner label="Loading settings..." />

@@ -2,28 +2,29 @@
 
 import { Sidebar } from "@/shared/components/layout/Sidebar"
 import { TopBar } from "@/shared/components/layout/TopBar"
+import { useActiveBusiness } from "@/shared/hooks/useActiveBusiness"
 import { useLiveTransactionPolling } from "@/features/transactions/hooks/useLiveTransactionPolling"
-
-const BUSINESS_ID = "biz-1"
 
 interface DashboardShellProps {
   children: React.ReactNode
 }
 
 export function DashboardShell({ children }: DashboardShellProps) {
+  const { businessId, businessName } = useActiveBusiness()
   const { isActive, lastUpdatedAt } = useLiveTransactionPolling({
-    businessId: BUSINESS_ID,
+    businessId,
+    enabled: !!businessId,
   })
 
   return (
     <div className="fixed inset-0 flex h-screen w-screen bg-background overflow-hidden">
       <div className="hidden md:flex shrink-0">
-        <Sidebar />
+        <Sidebar businessName={businessName} />
       </div>
 
       <div className="flex flex-1 flex-col min-h-0 min-w-0 overflow-hidden">
         <TopBar
-          businessName="My Salon"
+          businessName={businessName || "My Business"}
           liveFeedActive={isActive}
           liveFeedUpdatedAt={lastUpdatedAt}
         />

@@ -22,22 +22,33 @@ const bottomItems = [
     { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+    businessName?: string
+}
+
+export function Sidebar({ businessName }: SidebarProps) {
     const pathname = usePathname()
     const { mutate: signOut, isPending: isSigningOut } = useSignOut()
 
     return (
         <aside className="flex h-full w-[220px] flex-col border-r border-border bg-card shrink-0">
             {/* Logo */}
-            <div className="flex h-16 items-center gap-3 px-5 border-b border-border shrink-0">
-                <Image
-                    src="/app/roosta-icon.svg"
-                    alt="Roosta"
-                    width={24}
-                    height={24}
-                    className=""
-                />
-                <span className="font-bold text-[17px] text-foreground tracking-tight">Roosta</span>
+            <div className="flex min-h-16 flex-col justify-center gap-0.5 px-5 py-3 border-b border-border shrink-0">
+                <div className="flex items-center gap-3">
+                    <Image
+                        src="/app/roosta-icon.svg"
+                        alt="Roosta"
+                        width={24}
+                        height={24}
+                        className=""
+                    />
+                    <span className="font-bold text-[17px] text-foreground tracking-tight">Roosta</span>
+                </div>
+                {businessName ? (
+                    <p className="text-xs text-muted-foreground truncate pl-9" title={businessName}>
+                        {businessName}
+                    </p>
+                ) : null}
             </div>
 
             {/* Primary nav */}

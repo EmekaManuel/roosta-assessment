@@ -12,6 +12,7 @@ export {
   useTransactions,
 } from "./api/queries"
 
+export { DashboardHome } from "./components/DashboardHome"
 export { DashboardStatsOverview } from "./components/DashboardStatsOverview"
 export { RiskScoreSummary } from "./components/RiskScoreSummary"
 export { TransactionTrendChart } from "./components/TransactionTrendChart"

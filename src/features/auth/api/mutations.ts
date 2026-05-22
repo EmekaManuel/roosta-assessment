@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { apiClient } from "@/shared/lib/api-client"
 import { QUERY_KEYS } from "@/shared/lib/constants"
+import { useBusinessStore } from "@/shared/store/business-store"
 import { useAuthStore } from "../store/auth-store"
 import type { AuthUser } from "../types"
 import type { SignInFormData, SignUpFormData } from "../schemas"
@@ -108,6 +109,7 @@ export function useCompleteOnboarding() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const setUser = useAuthStore((s) => s.setUser)
+  const setBusiness = useBusinessStore((s) => s.setBusiness)
   const token = useAuthStore((s) => s.token)
 
   return useMutation({
@@ -117,21 +119,30 @@ export function useCompleteOnboarding() {
       const currentUser = useAuthStore.getState().user
 
       if (isMock && currentUser) {
+        const businessId = `biz-${currentUser.id}`
+        setBusiness(businessId, data)
         const updated: AuthUser = {
           ...currentUser,
           onboardingComplete: true,
-          businessId: "biz-mock-1",
+          businessId,
         }
         setUser(updated)
         return updated
       }
 
-      const res = await apiClient.post<AuthUser>("/businesses", data)
-      return res as unknown as AuthUser
+      const res = await apiClient.post<AuthUser & { businessId?: string }>(
+        "/businesses",
+        data
+      )
+      const user = res as unknown as AuthUser & { businessId?: string }
+      const businessId = user.businessId ?? `biz-${user.id}`
+      setBusiness(businessId, data)
+      return { ...user, onboardingComplete: true, businessId }
     },
     onSuccess: (user) => {
       setUser(user)
       queryClient.setQueryData([QUERY_KEYS.AUTH], user)
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SETTINGS] })
       toast.success("Your business is set up!")
       router.push("/dashboard")
     },

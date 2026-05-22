@@ -6,16 +6,16 @@ import { AnimatedSection } from "@/shared/components/feedback/AnimatedSection"
 import { TransactionFilterBar } from "./TransactionFilterBar"
 import { TransactionsTable } from "./TransactionsTable"
 import { TransactionDetailSheet } from "./TransactionDetailSheet"
+import { useActiveBusiness } from "@/shared/hooks/useActiveBusiness"
 import { useTransactions } from "../api/queries"
 import { useTransactionUrlState } from "../hooks/useTransactionUrlState"
 
-const BUSINESS_ID = "biz-1"
-
 export function TransactionsDashboard() {
+  const { businessId } = useActiveBusiness()
   const { filters, page, setFilters, setPage, setSearchQuery } = useTransactionUrlState()
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null)
 
-  const { data, isPending, isFetching } = useTransactions(BUSINESS_ID, filters, page)
+  const { data, isPending, isFetching } = useTransactions(businessId, filters, page)
 
   const transactions = data?.items ?? []
   const totalPages = data?.totalPages ?? 1

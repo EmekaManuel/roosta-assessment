@@ -2,6 +2,7 @@
 
 import { create } from "zustand"
 import { apiClient } from "@/shared/lib/api-client"
+import { useBusinessStore } from "@/shared/store/business-store"
 import { TOKEN_KEY, MOCK_USER_KEY } from "../lib/constants"
 import type { AuthUser } from "../types"
 
@@ -106,6 +107,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.removeItem(TOKEN_KEY)
       clearMockUser()
     }
+    useBusinessStore.getState().clearBusiness()
     set({ token: null, user: null, isLoading: false })
   },
 }))

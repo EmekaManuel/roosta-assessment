@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { useBusinessStore } from "@/shared/store/business-store"
 import { useAuthStore } from "../store/auth-store"
 
 interface AuthHydratorProps {
@@ -9,13 +10,15 @@ interface AuthHydratorProps {
 
 /** Restores auth state from storage and loads the session on the client. */
 export function AuthHydrator({ children }: AuthHydratorProps) {
-  const hydrate = useAuthStore((s) => s.hydrate)
+  const hydrateAuth = useAuthStore((s) => s.hydrate)
+  const hydrateBusiness = useBusinessStore((s) => s.hydrate)
   const fetchSession = useAuthStore((s) => s.fetchSession)
 
   useEffect(() => {
-    hydrate()
+    hydrateAuth()
+    hydrateBusiness()
     void fetchSession()
-  }, [hydrate, fetchSession])
+  }, [hydrateAuth, hydrateBusiness, fetchSession])
 
   return <>{children}</>
 }
