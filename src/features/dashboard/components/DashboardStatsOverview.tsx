@@ -39,7 +39,7 @@ export function DashboardStatsOverview({ businessId }: DashboardStatsOverviewPro
         label="Flagged Transactions"
         value={summary.flaggedTransactions.toLocaleString("en-NG")}
         icon={AlertTriangle}
-        trend={{ value: -2.1, label: "vs last week" }}
+        trend={{ value: -2.1, label: "vs last month" }}
       />
       <StatCard
         label="Total Customers"
@@ -51,7 +51,7 @@ export function DashboardStatsOverview({ businessId }: DashboardStatsOverviewPro
         label="Risk Score"
         value={`${summary.riskScore}/100`}
         icon={ShieldAlert}
-        trend={{ value: summary.riskTrend, label: "vs last week" }}
+        trend={{ value: summary.riskTrend, label: "vs last month" }}
       />
     </div>
   )

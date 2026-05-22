@@ -84,7 +84,7 @@ export function RiskScoreSummary({ businessId }: RiskScoreSummaryProps) {
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               {summary.riskTrend >= 0 ? "+" : ""}
-              {summary.riskTrend}% vs last week
+              {summary.riskTrend}% vs last month
             </p>
           </div>
           <Badge variant={config.variant} className="gap-1 shrink-0">
