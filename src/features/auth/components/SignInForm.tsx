@@ -13,6 +13,7 @@ import {
 } from "@/shared/components/ui/form"
 import { Input } from "@/shared/components/ui/input"
 import { Button } from "@/shared/components/ui/button"
+import { DEMO_SIGN_IN_HINT } from "../lib/demo-credentials"
 import { signInSchema, type SignInFormData } from "../schemas"
 import { useSignIn } from "../api/mutations"
 import { cn } from "@/shared/lib/utils"
@@ -31,6 +32,7 @@ export function SignInForm() {
         onSubmit={form.handleSubmit((data) => signIn(data))}
         className="space-y-4"
       >
+    
         <FormField
           control={form.control}
           name="email"
