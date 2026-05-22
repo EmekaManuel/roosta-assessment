@@ -2,6 +2,7 @@
 
 import { create } from "zustand"
 import { apiClient } from "@/shared/lib/api-client"
+import { applyStoredBusinessToUser } from "@/shared/lib/sync-business-session"
 import { useBusinessStore } from "@/shared/store/business-store"
 import { TOKEN_KEY, MOCK_USER_KEY } from "@/shared/lib/constants"
 import type { AuthUser } from "../types"
@@ -58,13 +59,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setSession: (token, user) => {
+    const syncedUser = applyStoredBusinessToUser(user)
     if (typeof window !== "undefined") {
       localStorage.setItem(TOKEN_KEY, token)
       if (isMockToken(token)) {
-        writeMockUser(user)
+        writeMockUser(syncedUser)
       }
     }
-    set({ token, user, isLoading: false })
+    set({ token, user: syncedUser, isLoading: false })
   },
 
   setUser: (user) => {
@@ -91,11 +93,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           get().logout()
           return
         }
-        set({ user: mockUser, isLoading: false })
+        set({ user: applyStoredBusinessToUser(mockUser), isLoading: false })
         return
       }
 
-      const user = (await apiClient.get<AuthUser>("/auth/me")) as unknown as AuthUser
+      const user = applyStoredBusinessToUser(
+        (await apiClient.get<AuthUser>("/auth/me")) as unknown as AuthUser
+      )
       set({ user, isLoading: false })
     } catch {
       get().logout()
@@ -107,7 +111,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.removeItem(TOKEN_KEY)
       clearMockUser()
     }
-    useBusinessStore.getState().clearBusiness()
+    useBusinessStore.getState().detachSession()
     set({ token: null, user: null, isLoading: false })
   },
 }))

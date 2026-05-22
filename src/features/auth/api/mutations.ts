@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { apiClient } from "@/shared/lib/api-client"
 import { QUERY_KEYS } from "@/shared/lib/constants"
+import { clearStoredBusinessIfOwnedByOther } from "@/shared/lib/sync-business-session"
 import { useBusinessStore } from "@/shared/store/business-store"
 import { useAuthStore } from "../store/auth-store"
 import type { AuthUser } from "../types"
@@ -59,9 +60,10 @@ export function useSignIn() {
     mutationFn: mockSignIn,
     onSuccess: (data) => {
       setSession(data.token, data.user)
-      queryClient.setQueryData([QUERY_KEYS.AUTH], data.user)
+      const user = useAuthStore.getState().user ?? data.user
+      queryClient.setQueryData([QUERY_KEYS.AUTH], user)
       toast.success("Welcome back!")
-      router.push(data.user.onboardingComplete !== false ? "/dashboard" : "/onboarding")
+      router.push(user.onboardingComplete !== false ? "/dashboard" : "/onboarding")
     },
     onError: () => {
       toast.error("Invalid email or password. Please try again.")
@@ -77,10 +79,12 @@ export function useSignUp() {
   return useMutation({
     mutationFn: mockSignUp,
     onSuccess: (data) => {
+      clearStoredBusinessIfOwnedByOther(data.user.id)
       setSession(data.token, data.user)
-      queryClient.setQueryData([QUERY_KEYS.AUTH], data.user)
+      const user = useAuthStore.getState().user ?? data.user
+      queryClient.setQueryData([QUERY_KEYS.AUTH], user)
       toast.success("Account created!")
-      router.push("/onboarding")
+      router.push(user.onboardingComplete !== false ? "/dashboard" : "/onboarding")
     },
     onError: () => {
       toast.error("Sign up failed. Please try again.")
@@ -120,7 +124,7 @@ export function useCompleteOnboarding() {
 
       if (isMock && currentUser) {
         const businessId = `biz-${currentUser.id}`
-        setBusiness(businessId, data)
+        setBusiness(businessId, data, currentUser.id)
         const updated: AuthUser = {
           ...currentUser,
           onboardingComplete: true,
@@ -136,7 +140,7 @@ export function useCompleteOnboarding() {
       )
       const user = res as unknown as AuthUser & { businessId?: string }
       const businessId = user.businessId ?? `biz-${user.id}`
-      setBusiness(businessId, data)
+      setBusiness(businessId, data, user.id)
       return { ...user, onboardingComplete: true, businessId }
     },
     onSuccess: (user) => {
