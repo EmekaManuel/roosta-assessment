@@ -1,5 +1,5 @@
-export type RiskLevel = "low" | "medium" | "high"
-export type TransactionStatus = "completed" | "pending" | "failed"
+export type { RiskLevel, TransactionStatus } from "@/shared/schemas/transaction"
+import type { RiskLevel, TransactionStatus } from "@/shared/schemas/transaction"
 export type TimelineEventType = "status" | "risk" | "system"
 
 export interface Transaction {

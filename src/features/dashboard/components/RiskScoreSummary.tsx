@@ -4,6 +4,7 @@ import { Shield, ShieldAlert, ShieldCheck } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Badge } from "@/shared/components/ui/badge"
 import { Skeleton } from "@/shared/components/ui/skeleton"
+import { QueryErrorState } from "@/shared/components/feedback/QueryErrorState"
 import { cn } from "@/shared/lib/utils"
 import { useDashboardSummary } from "../api/queries"
 import type { RiskLevel } from "../types"
@@ -57,7 +58,19 @@ function RiskScoreSkeleton() {
 }
 
 export function RiskScoreSummary({ businessId }: RiskScoreSummaryProps) {
-  const { data: summary, isLoading } = useDashboardSummary(businessId)
+  const { data: summary, isLoading, isError, refetch } = useDashboardSummary(businessId)
+
+  if (!businessId) return null
+
+  if (isError) {
+    return (
+      <Card className="h-full">
+        <CardContent className="pt-6">
+          <QueryErrorState onRetry={() => void refetch()} />
+        </CardContent>
+      </Card>
+    )
+  }
 
   if (isLoading) return <RiskScoreSkeleton />
   if (!summary) return null
@@ -84,7 +97,7 @@ export function RiskScoreSummary({ businessId }: RiskScoreSummaryProps) {
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               {summary.riskTrend >= 0 ? "+" : ""}
-              {summary.riskTrend}% vs last week
+              {summary.riskTrend}% vs last month
             </p>
           </div>
           <Badge variant={config.variant} className="gap-1 shrink-0">

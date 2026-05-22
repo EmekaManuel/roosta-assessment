@@ -11,6 +11,7 @@ import {
 } from "@/shared/components/ui/chart"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Skeleton } from "@/shared/components/ui/skeleton"
+import { QueryErrorState } from "@/shared/components/feedback/QueryErrorState"
 import { useTransactionChart } from "../api/queries"
 
 const chartConfig = {
@@ -43,7 +44,19 @@ function ChartSkeleton() {
 }
 
 export function TransactionTrendChart({ businessId }: TransactionTrendChartProps) {
-  const { data: chartData = [], isLoading } = useTransactionChart(businessId)
+  const { data: chartData = [], isLoading, isError, refetch } = useTransactionChart(businessId)
+
+  if (!businessId) return null
+
+  if (isError) {
+    return (
+      <Card className="h-full">
+        <CardContent className="pt-6">
+          <QueryErrorState onRetry={() => void refetch()} />
+        </CardContent>
+      </Card>
+    )
+  }
 
   if (isLoading) return <ChartSkeleton />
 

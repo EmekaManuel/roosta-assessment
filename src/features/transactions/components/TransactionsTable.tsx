@@ -13,8 +13,8 @@ import { Skeleton } from "@/shared/components/ui/skeleton"
 import { EmptyState } from "@/shared/components/feedback/EmptyState"
 import { TablePagination } from "@/shared/components/data/TablePagination"
 import { formatCurrency, formatDate } from "@/shared/lib/formatters"
-import { TransactionStatusBadge } from "./TransactionStatusBadge"
-import { RiskLevelBadge } from "./RiskLevelBadge"
+import { TransactionStatusBadge } from "@/shared/components/data/TransactionStatusBadge"
+import { RiskLevelBadge } from "@/shared/components/data/RiskLevelBadge"
 import type { Transaction } from "../types"
 
 interface TransactionsTableProps {
@@ -66,8 +66,8 @@ export function TransactionsTable({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-border overflow-hidden">
-        <Table>
+      <div className="rounded-xl border border-border overflow-hidden overflow-x-auto">
+        <Table className="min-w-[640px]">
           <TableHeader>
             <TableRow className="bg-muted/40">
               <TableHead className="font-semibold">Customer Name</TableHead>

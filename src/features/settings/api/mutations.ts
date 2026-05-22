@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { QUERY_KEYS } from "@/shared/lib/constants"
+import { toBusinessProfileRecord } from "@/shared/lib/business-profile-mapper"
+import { useBusinessStore } from "@/shared/store/business-store"
 import type { BusinessProfileFormData } from "../schemas"
 import type { AttendanceSettingsFormData, NotificationSettingsFormData } from "../schemas"
 import type { BusinessProfile, AttendanceSettings, NotificationSettings } from "../types"
 import {
-    DUMMY_BUSINESS_PROFILE,
     DUMMY_ATTENDANCE_SETTINGS,
     DUMMY_NOTIFICATION_SETTINGS,
     simulateDelay,
@@ -14,24 +15,17 @@ import {
 // ── Update business profile ───────────────────────────────────────────────
 export function useUpdateBusinessProfile() {
     const queryClient = useQueryClient()
+    const updateProfile = useBusinessStore((s) => s.updateProfile)
 
     return useMutation({
         mutationFn: async (data: BusinessProfileFormData): Promise<BusinessProfile> => {
             await simulateDelay(500)
-            const now = new Date().toISOString()
-            Object.assign(DUMMY_BUSINESS_PROFILE, {
-                name: data.name,
-                slug: data.slug,
-                tagline: data.tagline ?? "",
-                location: data.location ?? "",
-                phone: data.phone,
-                category: data.category,
-                openTime: data.openTime,
-                closeTime: data.closeTime,
-                openDays: data.openDays,
-                updatedAt: now,
-            })
-            return { ...DUMMY_BUSINESS_PROFILE }
+            updateProfile(data)
+            const stored = useBusinessStore.getState().getSnapshot()
+            if (!stored) {
+                throw new Error("No business profile in session")
+            }
+            return toBusinessProfileRecord(stored)
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SETTINGS] })
@@ -51,7 +45,9 @@ export function useUpdateAttendanceSettings() {
         mutationFn: async (data: AttendanceSettingsFormData): Promise<AttendanceSettings> => {
             await simulateDelay(400)
             const now = new Date().toISOString()
+            const businessId = useBusinessStore.getState().businessId ?? DUMMY_ATTENDANCE_SETTINGS.businessId
             Object.assign(DUMMY_ATTENDANCE_SETTINGS, {
+                businessId,
                 defaultWorkStart: data.defaultWorkStart,
                 lateDeductionAmount: data.lateDeductionAmount,
                 updatedAt: now,
@@ -76,7 +72,10 @@ export function useUpdateNotificationSettings() {
         mutationFn: async (data: NotificationSettingsFormData): Promise<NotificationSettings> => {
             await simulateDelay(300)
             const now = new Date().toISOString()
+            const businessId =
+                useBusinessStore.getState().businessId ?? DUMMY_NOTIFICATION_SETTINGS.businessId
             Object.assign(DUMMY_NOTIFICATION_SETTINGS, {
+                businessId,
                 bookingRemindersWhatsApp: data.bookingRemindersWhatsApp,
                 payrollPayslipWhatsApp: data.payrollPayslipWhatsApp,
                 updatedAt: now,

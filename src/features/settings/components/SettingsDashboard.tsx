@@ -9,22 +9,24 @@ import {
 } from "@/shared/components/ui/card"
 import { PageHeader } from "@/shared/components/layout/PageHeader"
 import { LoadingSpinner } from "@/shared/components/feedback/LoadingSpinner"
+import { QueryErrorState } from "@/shared/components/feedback/QueryErrorState"
+import { BusinessSetupGate } from "@/shared/components/feedback/BusinessSetupGate"
 import { Building2, Clock, Bell } from "lucide-react"
+import { useActiveBusiness } from "@/shared/hooks/useActiveBusiness"
 import { useSettings } from "../api/queries"
 import { useUpdateBusinessProfile, useUpdateAttendanceSettings, useUpdateNotificationSettings } from "../api/mutations"
 import { BusinessProfileSection } from "./BusinessProfileSection"
 import { AttendanceSettingsSection } from "./AttendanceSettingsSection"
 import { NotificationsSection } from "./NotificationsSection"
 
-const BUSINESS_ID = "biz-1" // TODO: replace from auth session
-
 export function SettingsDashboard() {
-    const { data: settings, isLoading } = useSettings(BUSINESS_ID)
+    const { businessId, isHydrated } = useActiveBusiness()
+    const { data: settings, isLoading, isError, refetch } = useSettings(businessId)
     const { mutate: updateBusiness, isPending: businessPending } = useUpdateBusinessProfile()
     const { mutate: updateAttendance, isPending: attendancePending } = useUpdateAttendanceSettings()
     const { mutate: updateNotifications, isPending: notificationsPending } = useUpdateNotificationSettings()
 
-    if (isLoading || !settings) {
+    if (!isHydrated) {
         return (
             <div className="flex items-center justify-center min-h-[200px]">
                 <LoadingSpinner label="Loading settings..." />
@@ -33,7 +35,16 @@ export function SettingsDashboard() {
     }
 
     return (
+        <BusinessSetupGate>
         <div className="space-y-8">
+            {!businessId || isLoading ? (
+                <div className="flex items-center justify-center min-h-[200px]">
+                    <LoadingSpinner label="Loading settings..." />
+                </div>
+            ) : isError ? (
+                <QueryErrorState onRetry={() => void refetch()} />
+            ) : !settings ? null : (
+            <>
             <PageHeader
                 title="Settings"
                 description="Customize your business profile, attendance rules, and notifications."
@@ -95,6 +106,9 @@ export function SettingsDashboard() {
                     />
                 </CardContent>
             </Card>
+            </>
+            )}
         </div>
+        </BusinessSetupGate>
     )
 }

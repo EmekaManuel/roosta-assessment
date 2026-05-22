@@ -22,8 +22,9 @@ import { Separator } from "@/shared/components/ui/separator"
 import { formatCurrency, formatDate } from "@/shared/lib/formatters"
 import { cn } from "@/shared/lib/utils"
 import { useTransaction } from "../api/queries"
-import { TransactionStatusBadge } from "./TransactionStatusBadge"
-import { RiskLevelBadge } from "./RiskLevelBadge"
+import { QueryErrorState } from "@/shared/components/feedback/QueryErrorState"
+import { TransactionStatusBadge } from "@/shared/components/data/TransactionStatusBadge"
+import { RiskLevelBadge } from "@/shared/components/data/RiskLevelBadge"
 import type { TransactionTimelineEvent, TransactionRiskIndicator } from "../types"
 
 interface TransactionDetailSheetProps {
@@ -69,7 +70,7 @@ export function TransactionDetailSheet({
   transactionId,
   onOpenChange,
 }: TransactionDetailSheetProps) {
-  const { data: detail, isLoading } = useTransaction(transactionId ?? "")
+  const { data: detail, isLoading, isError, refetch } = useTransaction(transactionId ?? "")
   const isOpen = !!transactionId
 
   return (
@@ -86,6 +87,18 @@ export function TransactionDetailSheet({
         </SheetHeader>
 
         {isLoading && <DetailSkeleton />}
+
+        {isError && !isLoading && (
+          <div className="px-6 py-6">
+            <QueryErrorState onRetry={() => void refetch()} />
+          </div>
+        )}
+
+        {!isLoading && !isError && !detail && transactionId && (
+          <div className="px-6 py-8 text-center text-sm text-muted-foreground">
+            Transaction not found.
+          </div>
+        )}
 
         {detail && (
           <div className="flex-1 overflow-y-auto">

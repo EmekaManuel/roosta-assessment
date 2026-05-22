@@ -22,17 +22,7 @@ import {
 import { businessProfileSchema, type BusinessProfileFormData } from "../schemas"
 import type { BusinessProfile } from "../types"
 import { getAppUrl } from "@/shared/lib/constants"
-
-const CATEGORIES = [
-    "Salon & Beauty",
-    "Barbershop",
-    "Clinic",
-    "Restaurant",
-    "Fitness",
-    "Photography",
-    "School",
-    "Other",
-]
+import { BUSINESS_CATEGORIES } from "@/shared/schemas/businessCategories"
 
 const DAYS = [
     { value: 0, label: "Sunday" },
@@ -157,7 +147,7 @@ export function BusinessProfileSection({
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    {CATEGORIES.map((c) => (
+                                    {BUSINESS_CATEGORIES.map((c) => (
                                         <SelectItem key={c} value={c}>
                                             {c}
                                         </SelectItem>

@@ -1,2 +1,2 @@
-export const TOKEN_KEY = "roosta_token"
-export const MOCK_USER_KEY = "roosta_mock_user"
+/** @deprecated Import from `@/shared/lib/constants` */
+export { TOKEN_KEY, MOCK_USER_KEY } from "@/shared/lib/constants"
