@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { PageHeader } from "@/shared/components/layout/PageHeader"
+import { AnimatedSection } from "@/shared/components/feedback/AnimatedSection"
 import { TransactionFilterBar } from "./TransactionFilterBar"
 import { TransactionsTable } from "./TransactionsTable"
 import { TransactionDetailSheet } from "./TransactionDetailSheet"
@@ -24,17 +25,22 @@ export function TransactionsDashboard() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Transactions"
-        description="Search, filter, and review all transactions with risk insights."
-      />
+      <AnimatedSection>
+        <PageHeader
+          title="Transactions"
+          description="Search, filter, and review all transactions with risk insights."
+        />
+      </AnimatedSection>
 
+      <AnimatedSection delayMs={80}>
       <TransactionFilterBar
         filters={filters}
         onFiltersChange={setFilters}
         onSearchQueryChange={setSearchQuery}
       />
+      </AnimatedSection>
 
+      <AnimatedSection delayMs={160}>
       <TransactionsTable
         transactions={transactions}
         isLoading={isPending || (isFetching && !data)}
@@ -45,6 +51,7 @@ export function TransactionsDashboard() {
         onPageChange={setPage}
         onViewDetail={setSelectedTransactionId}
       />
+      </AnimatedSection>
 
       <TransactionDetailSheet
         transactionId={selectedTransactionId}

@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${syne.variable} ${dmSans.variable}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${syne.variable} ${dmSans.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

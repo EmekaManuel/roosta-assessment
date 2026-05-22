@@ -81,10 +81,11 @@ export function TransactionsTable({
             {isLoading ? (
               <TableSkeleton />
             ) : (
-              transactions.map((txn) => (
+              transactions.map((txn, index) => (
                 <TableRow
                   key={txn.id}
-                  className="cursor-pointer hover:bg-muted/30 transition-colors"
+                  className="cursor-pointer hover:bg-muted/30 transition-colors duration-200 animate-in fade-in slide-in-from-left-1 fill-mode-both"
+                  style={{ animationDelay: `${index * 40}ms`, animationDuration: "350ms" }}
                   onClick={() => onViewDetail(txn.id)}
                 >
                   <TableCell>

@@ -14,6 +14,7 @@ const maybeRoot = path.resolve(cwd, '..', '..');
 const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   reactCompiler: true,
   reactStrictMode: true,
 
