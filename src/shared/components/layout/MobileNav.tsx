@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { Menu } from "lucide-react"
 import { useSignOut } from "@/features/auth"
@@ -12,7 +12,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/ui/sheet"
-import { cn } from "@/shared/lib/utils"
 import { SidebarNavContent } from "./SidebarNavContent"
 
 interface MobileNavProps {
@@ -21,10 +20,15 @@ interface MobileNavProps {
 
 export function MobileNav({ businessName }: MobileNavProps) {
   const pathname = usePathname()
+  const [open, setOpen] = useState(false)
   const { mutate: signOut, isPending: isSigningOut } = useSignOut()
 
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden shrink-0" aria-label="Open menu">
           <Menu className="size-5" />
@@ -38,7 +42,15 @@ export function MobileNav({ businessName }: MobileNavProps) {
           ) : null}
         </SheetHeader>
         <div className="flex flex-1 flex-col overflow-y-auto p-3">
-          <SidebarNavContent pathname={pathname} onSignOut={() => signOut()} isSigningOut={isSigningOut} />
+          <SidebarNavContent
+            pathname={pathname}
+            onNavigate={() => setOpen(false)}
+            onSignOut={() => {
+              setOpen(false)
+              signOut()
+            }}
+            isSigningOut={isSigningOut}
+          />
         </div>
       </SheetContent>
     </Sheet>
