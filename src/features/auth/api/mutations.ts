@@ -9,8 +9,16 @@ import { clearStoredBusinessIfOwnedByOther } from "@/shared/lib/sync-business-se
 import { useBusinessStore } from "@/shared/store/business-store"
 import { useAuthStore } from "../store/auth-store"
 import type { AuthUser } from "../types"
+import { isDemoSignInCredentials } from "../lib/demo-credentials"
 import type { SignInFormData, SignUpFormData } from "../schemas"
 import type { BusinessProfileFormData } from "@/shared/schemas/businessProfile"
+
+class InvalidCredentialsError extends Error {
+  constructor() {
+    super("Invalid email or password")
+    this.name = "InvalidCredentialsError"
+  }
+}
 
 interface SignInResponse {
   user: AuthUser
@@ -27,15 +35,20 @@ function mockDelay(ms = 400): Promise<void> {
 }
 
 function mockSignIn(data: SignInFormData): Promise<SignInResponse> {
-  return mockDelay().then(() => ({
-    user: {
-      id: "user-mock-1",
-      name: data.email.split("@")[0],
-      email: data.email,
-      onboardingComplete: false,
-    },
-    token: `mock-jwt-${Date.now()}-${data.email}`,
-  }))
+  return mockDelay().then(() => {
+    if (!isDemoSignInCredentials(data.email, data.password)) {
+      throw new InvalidCredentialsError()
+    }
+    return {
+      user: {
+        id: "user-mock-1",
+        name: "Demo Owner",
+        email: data.email.trim().toLowerCase(),
+        onboardingComplete: false,
+      },
+      token: `mock-jwt-${Date.now()}-${data.email}`,
+    }
+  })
 }
 
 function mockSignUp(data: SignUpFormData): Promise<SignUpResponse> {

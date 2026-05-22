@@ -66,7 +66,18 @@ npm test         # Vitest unit tests
 5. **Settings** — edit business profile; changes persist in local storage.
 6. **Sign out** and sign back in — business profile is restored.
 
-Use any email/password; credentials are not validated against a real API in mock mode.
+### Demo sign-in (mock auth)
+
+| Field | Value |
+|--------|--------|
+| **Email** | `owner@roosta.ng` |
+| **Password** | `RoostaDemo1` |
+
+**Form validation (before submit):** invalid email format or password under 8 characters shows field errors.
+
+**Auth validation (on submit):** any other email/password shows “Invalid email or password” toast.
+
+Sign-up still accepts any valid new account; only **sign-in** uses the fixed demo credentials.
 
 ### Deploy (Netlify)
 

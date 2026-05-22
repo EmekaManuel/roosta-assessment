@@ -30,7 +30,9 @@ Open **http://localhost:3000**.
 
 **Note:** No backend is required. Mock auth and mock API data are used when `NEXT_PUBLIC_API_URL` is unset.
 
-**Quick test path:** Sign up → complete onboarding → dashboard → transactions → settings → refresh (business name persists) → sign out / sign in.
+**Demo login:** `owner@roosta.ng` / `RoostaDemo1` (wrong password or short password tests validation).
+
+**Quick test path:** Sign in with demo credentials → complete onboarding if needed → dashboard → transactions → settings → refresh (business name persists) → sign out / sign in.
 
 **Production build:** `npm run build` then `npm run start`.
 

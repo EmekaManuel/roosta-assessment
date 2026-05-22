@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/shared/components/ui/form"
 import { Input } from "@/shared/components/ui/input"
+import { PasswordInput } from "@/shared/components/data/PasswordInput"
 import { Button } from "@/shared/components/ui/button"
 import { signInSchema, type SignInFormData } from "../schemas"
 import { useSignIn } from "../api/mutations"
@@ -31,6 +32,7 @@ export function SignInForm() {
         onSubmit={form.handleSubmit((data) => signIn(data))}
         className="space-y-4"
       >
+    
         <FormField
           control={form.control}
           name="email"
@@ -68,10 +70,10 @@ export function SignInForm() {
                 </Link>
               </div>
               <FormControl>
-                <Input
-                  type="password"
+                <PasswordInput
                   placeholder="••••••••"
                   autoComplete="current-password"
+                  toggleClassName="text-v3-secondary/60 hover:text-v3-secondary"
                   className={cn(
                     "h-11 rounded-[8px] border-v3-secondary/30 bg-v3-primary text-v3-secondary",
                     "placeholder:text-v3-secondary/40 focus-visible:ring-v3-secondary/50"
