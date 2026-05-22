@@ -13,7 +13,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <AuthHydrator>
           {children}
         </AuthHydrator>
-        <Toaster richColors position="top-right" />
+        <Toaster
+          richColors
+          position="top-right"
+          offset={16}
+          gap={10}
+          toastOptions={{
+            classNames: {
+              toast:
+                "rounded-xl border border-border/70 bg-card/95 text-foreground shadow-sm backdrop-blur-md",
+              title: "text-sm font-medium",
+              description: "text-xs text-muted-foreground",
+              actionButton: "rounded-lg text-xs font-medium",
+              cancelButton: "rounded-lg text-xs font-medium",
+            },
+          }}
+        />
       </QueryClientProvider>
     </ThemeProvider>
   )

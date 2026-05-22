@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
+import { showLiveTransactionToast } from "@/shared/components/feedback/LiveTransactionToast"
 import { QUERY_KEYS } from "@/shared/lib/constants"
 import { getMutableTransactions } from "../api/dummy"
 import { simulateLiveFeedTick, type LiveFeedEvent } from "../lib/live-feed-simulator"
@@ -19,40 +19,45 @@ export function useLiveTransactionPolling({
   enabled = true,
 }: UseLiveTransactionPollingOptions) {
   const queryClient = useQueryClient()
-  const [isActive, setIsActive] = useState(false)
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null)
   const [lastEvent, setLastEvent] = useState<LiveFeedEvent | null>(null)
 
-  useEffect(() => {
-    if (!enabled || !businessId) return
+  const isActive = enabled && !!businessId
 
-    setIsActive(true)
+  const runTick = useCallback(() => {
+    const transactions = getMutableTransactions()
+    const event = simulateLiveFeedTick(transactions)
+
     setLastUpdatedAt(new Date())
 
-    const intervalId = window.setInterval(() => {
-      const transactions = getMutableTransactions()
-      const event = simulateLiveFeedTick(transactions)
+    if (!event) return
 
-      setLastUpdatedAt(new Date())
+    setLastEvent(event)
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TRANSACTIONS] })
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DASHBOARD] })
 
-      if (!event) return
+    if (event.type === "flagged") {
+      showLiveTransactionToast({ message: event.message, variant: "warning" })
+    } else if (event.type === "new_transaction") {
+      showLiveTransactionToast({ message: event.message, variant: "info" })
+    }
+  }, [queryClient])
 
-      setLastEvent(event)
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TRANSACTIONS] })
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DASHBOARD] })
+  useEffect(() => {
+    if (!isActive) return
 
-      if (event.type === "flagged") {
-        toast.warning(event.message, { duration: 5000 })
-      } else if (event.type === "new_transaction") {
-        toast.info(event.message, { duration: 4000 })
-      }
-    }, POLL_INTERVAL_MS)
+    const initialTimeoutId = window.setTimeout(runTick, 0)
+    const intervalId = window.setInterval(runTick, POLL_INTERVAL_MS)
 
     return () => {
+      window.clearTimeout(initialTimeoutId)
       window.clearInterval(intervalId)
-      setIsActive(false)
     }
-  }, [businessId, enabled, queryClient])
+  }, [isActive, runTick])
 
-  return { isActive, lastUpdatedAt, lastEvent }
+  return {
+    isActive,
+    lastUpdatedAt: isActive ? lastUpdatedAt : null,
+    lastEvent: isActive ? lastEvent : null,
+  }
 }
