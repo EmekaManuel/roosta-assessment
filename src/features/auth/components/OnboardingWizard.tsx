@@ -25,16 +25,7 @@ import { getAppUrl } from "@/shared/lib/constants"
 import { useCompleteOnboarding } from "../api/mutations"
 import { cn } from "@/shared/lib/utils"
 
-const CATEGORIES = [
-  "Salon & Beauty",
-  "Barbershop",
-  "Clinic",
-  "Restaurant",
-  "Fitness",
-  "Photography",
-  "School",
-  "Other",
-]
+import { BUSINESS_CATEGORIES } from "@/shared/schemas/businessCategories"
 
 const DAYS_OPTIONS = [
   { value: "1,2,3,4,5", label: "Mon–Fri" },
@@ -152,7 +143,7 @@ export function OnboardingWizard() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {CATEGORIES.map((c) => (
+                    {BUSINESS_CATEGORIES.map((c) => (
                       <SelectItem key={c} value={c}>
                         {c}
                       </SelectItem>

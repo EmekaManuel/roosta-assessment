@@ -1,7 +1,10 @@
 import { z } from "zod"
+import {
+  riskLevelSchema,
+  transactionStatusSchema,
+} from "@/shared/schemas/transaction"
 
-export const transactionStatusSchema = z.enum(["completed", "pending", "failed"])
-export const riskLevelSchema = z.enum(["low", "medium", "high"])
+export { riskLevelSchema, transactionStatusSchema }
 
 export const transactionFilterSchema = z.object({
   search: z.string().optional(),

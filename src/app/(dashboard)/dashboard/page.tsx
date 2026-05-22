@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { DashboardHome } from "@/features/dashboard/components/DashboardHome"
+import { DashboardHome } from "@/features/dashboard"
 
 export const metadata: Metadata = {
   title: "Dashboard | Roosta",

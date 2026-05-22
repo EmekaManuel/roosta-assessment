@@ -7,6 +7,7 @@ import {
   ShieldAlert,
 } from "lucide-react"
 import { StatCard } from "@/shared/components/data/StatCard"
+import { QueryErrorState } from "@/shared/components/feedback/QueryErrorState"
 import { StatCardsSkeleton } from "./StatCardsSkeleton"
 import { useDashboardSummary } from "../api/queries"
 
@@ -15,7 +16,13 @@ interface DashboardStatsOverviewProps {
 }
 
 export function DashboardStatsOverview({ businessId }: DashboardStatsOverviewProps) {
-  const { data: summary, isLoading } = useDashboardSummary(businessId)
+  const { data: summary, isLoading, isError, refetch } = useDashboardSummary(businessId)
+
+  if (!businessId) return null
+
+  if (isError) {
+    return <QueryErrorState onRetry={() => void refetch()} />
+  }
 
   if (isLoading) {
     return (

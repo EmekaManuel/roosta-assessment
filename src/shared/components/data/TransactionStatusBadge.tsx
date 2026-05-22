@@ -1,6 +1,6 @@
 import { Badge } from "@/shared/components/ui/badge"
 import { cn } from "@/shared/lib/utils"
-import type { TransactionStatus } from "../types"
+import type { TransactionStatus } from "@/shared/schemas/transaction"
 
 const statusStyles: Record<TransactionStatus, string> = {
   completed: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",

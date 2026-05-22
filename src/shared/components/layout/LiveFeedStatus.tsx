@@ -7,14 +7,21 @@ import { formatDate } from "@/shared/lib/formatters"
 interface LiveFeedStatusProps {
   isActive: boolean
   lastUpdatedAt: Date | null
+  compact?: boolean
   className?: string
 }
 
-export function LiveFeedStatus({ isActive, lastUpdatedAt, className }: LiveFeedStatusProps) {
+export function LiveFeedStatus({
+  isActive,
+  lastUpdatedAt,
+  compact = false,
+  className,
+}: LiveFeedStatusProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground",
+        "flex items-center gap-2 rounded-full border border-border bg-muted/50 text-xs text-muted-foreground",
+        compact ? "px-2 py-1" : "px-3 py-1.5",
         className
       )}
       title={
@@ -34,8 +41,8 @@ export function LiveFeedStatus({ isActive, lastUpdatedAt, className }: LiveFeedS
           )}
         />
       </span>
-      <Radio className="size-3.5 shrink-0" />
-      <span className="font-medium">{isActive ? "Live" : "Offline"}</span>
+      {!compact ? <Radio className="size-3.5 shrink-0" /> : null}
+      <span className="font-medium">{isActive ? "Live" : "Off"}</span>
     </div>
   )
 }

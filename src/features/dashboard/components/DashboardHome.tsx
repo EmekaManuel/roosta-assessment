@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react"
 import { PageHeader } from "@/shared/components/layout/PageHeader"
 import { AnimatedSection } from "@/shared/components/feedback/AnimatedSection"
 import { Button } from "@/shared/components/ui/button"
+import { BusinessSetupGate } from "@/shared/components/feedback/BusinessSetupGate"
 import { useActiveBusiness } from "@/shared/hooks/useActiveBusiness"
 import { DashboardStatsOverview } from "./DashboardStatsOverview"
 import { RiskScoreSummary } from "./RiskScoreSummary"
@@ -14,6 +15,7 @@ export function DashboardHome() {
   const { businessId, businessName } = useActiveBusiness()
 
   return (
+    <BusinessSetupGate>
     <div className="space-y-8">
       <AnimatedSection>
         <PageHeader
@@ -67,5 +69,6 @@ export function DashboardHome() {
         </section>
       </AnimatedSection>
     </div>
+    </BusinessSetupGate>
   )
 }

@@ -6,6 +6,8 @@ import { AnimatedSection } from "@/shared/components/feedback/AnimatedSection"
 import { TransactionFilterBar } from "./TransactionFilterBar"
 import { TransactionsTable } from "./TransactionsTable"
 import { TransactionDetailSheet } from "./TransactionDetailSheet"
+import { BusinessSetupGate } from "@/shared/components/feedback/BusinessSetupGate"
+import { QueryErrorState } from "@/shared/components/feedback/QueryErrorState"
 import { useActiveBusiness } from "@/shared/hooks/useActiveBusiness"
 import { useTransactions } from "../api/queries"
 import { useTransactionUrlState } from "../hooks/useTransactionUrlState"
@@ -15,7 +17,7 @@ export function TransactionsDashboard() {
   const { filters, page, setFilters, setPage, setSearchQuery } = useTransactionUrlState()
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null)
 
-  const { data, isPending, isFetching } = useTransactions(businessId, filters, page)
+  const { data, isPending, isFetching, isError, refetch } = useTransactions(businessId, filters, page)
 
   const transactions = data?.items ?? []
   const totalPages = data?.totalPages ?? 1
@@ -24,6 +26,7 @@ export function TransactionsDashboard() {
   const currentPage = data?.page ?? page
 
   return (
+    <BusinessSetupGate>
     <div className="space-y-6">
       <AnimatedSection>
         <PageHeader
@@ -41,6 +44,9 @@ export function TransactionsDashboard() {
       </AnimatedSection>
 
       <AnimatedSection delayMs={160}>
+      {isError ? (
+        <QueryErrorState onRetry={() => void refetch()} />
+      ) : (
       <TransactionsTable
         transactions={transactions}
         isLoading={isPending || (isFetching && !data)}
@@ -51,6 +57,7 @@ export function TransactionsDashboard() {
         onPageChange={setPage}
         onViewDetail={setSelectedTransactionId}
       />
+      )}
       </AnimatedSection>
 
       <TransactionDetailSheet
@@ -60,5 +67,6 @@ export function TransactionsDashboard() {
         }}
       />
     </div>
+    </BusinessSetupGate>
   )
 }

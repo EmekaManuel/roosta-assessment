@@ -3,7 +3,7 @@
 import { Sidebar } from "@/shared/components/layout/Sidebar"
 import { TopBar } from "@/shared/components/layout/TopBar"
 import { useActiveBusiness } from "@/shared/hooks/useActiveBusiness"
-import { useLiveTransactionPolling } from "@/features/transactions/hooks/useLiveTransactionPolling"
+import { useLiveTransactionPolling } from "@/features/transactions"
 
 interface DashboardShellProps {
   children: React.ReactNode
@@ -28,7 +28,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           liveFeedActive={isActive}
           liveFeedUpdatedAt={lastUpdatedAt}
         />
-        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-6">
+        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
           {children}
         </main>
       </div>

@@ -41,12 +41,6 @@
       ],
       "@/components/ui/*": [
         "./src/shared/components/ui/*"
-      ],
-      "@/components/ui/button": [
-        "./src/shared/components/ui/button"
-      ],
-      "@/components/ui/label": [
-        "./src/shared/components/ui/label"
       ]
     }
   },

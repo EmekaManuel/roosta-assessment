@@ -25,6 +25,10 @@ export function useLiveTransactionPolling({
   const isActive = enabled && !!businessId
 
   const runTick = useCallback(() => {
+    if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+      return
+    }
+
     const transactions = getMutableTransactions()
     const event = simulateLiveFeedTick(transactions)
 
@@ -49,9 +53,17 @@ export function useLiveTransactionPolling({
     const initialTimeoutId = window.setTimeout(runTick, 0)
     const intervalId = window.setInterval(runTick, POLL_INTERVAL_MS)
 
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        runTick()
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibility)
+
     return () => {
       window.clearTimeout(initialTimeoutId)
       window.clearInterval(intervalId)
+      document.removeEventListener("visibilitychange", onVisibility)
     }
   }, [isActive, runTick])
 

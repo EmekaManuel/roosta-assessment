@@ -3,7 +3,7 @@
 import { create } from "zustand"
 import { apiClient } from "@/shared/lib/api-client"
 import { useBusinessStore } from "@/shared/store/business-store"
-import { TOKEN_KEY, MOCK_USER_KEY } from "../lib/constants"
+import { TOKEN_KEY, MOCK_USER_KEY } from "@/shared/lib/constants"
 import type { AuthUser } from "../types"
 
 function isMockToken(token: string | null): boolean {

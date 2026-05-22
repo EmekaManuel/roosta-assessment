@@ -1,6 +1,6 @@
 import { Badge } from "@/shared/components/ui/badge"
 import { cn } from "@/shared/lib/utils"
-import type { RiskLevel } from "../types"
+import type { RiskLevel } from "@/shared/schemas/transaction"
 
 const riskStyles: Record<RiskLevel, string> = {
   low: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
