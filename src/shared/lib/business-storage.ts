@@ -6,6 +6,8 @@ export interface StoredBusiness {
   businessId: string
   profile: BusinessProfileFormData
   updatedAt: string
+  /** Links profile to an auth user so another account does not inherit it. */
+  ownerId?: string
 }
 
 export function readStoredBusiness(): StoredBusiness | null {

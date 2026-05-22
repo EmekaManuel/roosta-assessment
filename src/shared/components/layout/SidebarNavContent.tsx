@@ -19,12 +19,14 @@ const bottomItems = [{ label: "Settings", href: "/dashboard/settings", icon: Set
 interface SidebarNavContentProps {
   pathname: string
   onSignOut: () => void
+  onNavigate?: () => void
   isSigningOut?: boolean
 }
 
 export function SidebarNavContent({
   pathname,
   onSignOut,
+  onNavigate,
   isSigningOut = false,
 }: SidebarNavContentProps) {
   return (
@@ -37,6 +39,7 @@ export function SidebarNavContent({
             <Link
               key={href}
               href={href}
+              onClick={() => onNavigate?.()}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 active
@@ -55,6 +58,7 @@ export function SidebarNavContent({
           <Link
             key={href}
             href={href}
+            onClick={() => onNavigate?.()}
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
           >
             <Icon className="size-4 shrink-0" />

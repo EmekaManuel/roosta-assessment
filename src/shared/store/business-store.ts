@@ -15,7 +15,9 @@ interface BusinessState {
   updatedAt: string | null
   isHydrated: boolean
   hydrate: () => void
-  setBusiness: (businessId: string, profile: BusinessProfileFormData) => void
+  setBusiness: (businessId: string, profile: BusinessProfileFormData, ownerId?: string) => void
+  /** Clears in-memory state only; localStorage profile is kept for next login. */
+  detachSession: () => void
   updateProfile: (profile: BusinessProfileFormData) => void
   clearBusiness: () => void
   getSnapshot: () => StoredBusiness | null
@@ -41,10 +43,20 @@ export const useBusinessStore = create<BusinessState>((set, get) => ({
     set({ isHydrated: true })
   },
 
-  setBusiness: (businessId, profile) => {
+  setBusiness: (businessId, profile, ownerId) => {
     const updatedAt = new Date().toISOString()
-    writeStoredBusiness({ businessId, profile, updatedAt })
+    const existing = readStoredBusiness()
+    writeStoredBusiness({
+      businessId,
+      profile,
+      updatedAt,
+      ownerId: ownerId ?? existing?.ownerId,
+    })
     set({ businessId, profile, updatedAt })
+  },
+
+  detachSession: () => {
+    set({ businessId: null, profile: null, updatedAt: null })
   },
 
   updateProfile: (profile) => {

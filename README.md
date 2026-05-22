@@ -46,6 +46,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+**Docker:** the container listens on **http://localhost:3001** (port 3000 inside the container) so it does not conflict with `npm run dev`.
+
 ### 4. Other commands
 
 ```bash

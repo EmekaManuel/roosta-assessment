@@ -18,9 +18,6 @@ apiClient.interceptors.response.use(
   (res) => res.data,
   (err) => {
     if (err.response?.status === 401 && typeof window !== "undefined") {
-      void import("@/shared/store/business-store").then(({ useBusinessStore }) => {
-        useBusinessStore.getState().clearBusiness()
-      })
       void import("@/features/auth/store/auth-store").then(({ useAuthStore }) => {
         useAuthStore.getState().logout()
         window.location.href = "/login"
